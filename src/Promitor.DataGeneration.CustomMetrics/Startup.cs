@@ -1,15 +1,12 @@
-﻿using AzureAutoscalingToolbox.Samples.StatefulAppInstances;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Serilog;
-using Serilog.Configuration;
-using Serilog.Events;
+using Promitor.DataGeneration.CustomMetrics;
 
 [assembly: FunctionsStartup(typeof(Startup))]
-namespace AzureAutoscalingToolbox.Samples.StatefulAppInstances
+namespace Promitor.DataGeneration.CustomMetrics
 {
     public class Startup : FunctionsStartup
     {
@@ -30,8 +27,7 @@ namespace AzureAutoscalingToolbox.Samples.StatefulAppInstances
 
             builder.Services.AddLogging(logging =>
             {
-                logging.ClearProvidersExceptFunctionProviders()
-                       .AddSerilog(configuration.CreateLogger(), dispose: true);
+                logging.ClearProvidersExceptFunctionProviders();
             });
         }
     }

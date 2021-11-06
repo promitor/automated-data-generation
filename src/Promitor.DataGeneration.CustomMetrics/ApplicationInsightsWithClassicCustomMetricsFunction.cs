@@ -1,6 +1,5 @@
-using System;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Promitor.DataGeneration.CustomMetrics
@@ -15,11 +14,11 @@ namespace Promitor.DataGeneration.CustomMetrics
         [FunctionName("custom-metrics-application-insights-classic")]
         public void Run([TimerTrigger("0 */5 * * * *")]TimerInfo timerInfo)
         {
-            Logger.LogVerbose("Simulating new orders for classic Azure Application Insights");
+            Logger.LogInformation("Simulating new orders for classic Azure Application Insights");
 
             SimulateNewOrdersCreated();
 
-            Logger.LogVerbose("New orders simulated for classic Azure Application Insights");
+            Logger.LogInformation("New orders simulated for classic Azure Application Insights");
         }
     }
 }

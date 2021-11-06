@@ -1,13 +1,17 @@
 using System;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
+using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Configuration;
+using Serilog.Events;
+using Serilog.Extensions.Logging;
 
 namespace Promitor.DataGeneration.CustomMetrics
 {
     public class ApplicationInsightsCustomMetricsFunction
     {
-        public ILogger Logger { get; }
+        public ILogger<ApplicationInsightsCustomMetricsFunction> Logger { get; }
         private readonly Random _randomizer = new Random();
         private const string OrdersCreatedMetricName = "Orders Created";
 
@@ -25,7 +29,9 @@ namespace Promitor.DataGeneration.CustomMetrics
                 .WriteTo.Console()
                 .WriteTo.AzureApplicationInsights(instrumentationKey);
 
-            Logger = loggerConfiguration.CreateLogger();
+            var serilogLogger = loggerConfiguration.CreateLogger();
+            Logger = new SerilogLoggerFactory(serilogLogger)
+                    .CreateLogger<ApplicationInsightsCustomMetricsFunction>();
         }
 
         public void SimulateNewOrdersCreated()
@@ -39,7 +45,7 @@ namespace Promitor.DataGeneration.CustomMetrics
         private void SimulateNewOrdersCreated(string tenantName)
         {
             // Annotate with contextual information
-            var contextInformation = new Dictionary<string, object>
+            var contextualInformation = new Dictionary<string, object>
             {
                 {"Tenant", tenantName}
             };
