@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31423.177
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Promitor.DataGeneration.CustomMetrics", "Promitor.DataGeneration.CustomMetrics\Promitor.DataGeneration.CustomMetrics.csproj", "{698B2B13-13D5-4FA0-B3D2-DB4B51F8ECAE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{698B2B13-13D5-4FA0-B3D2-DB4B51F8ECAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{698B2B13-13D5-4FA0-B3D2-DB4B51F8ECAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{698B2B13-13D5-4FA0-B3D2-DB4B51F8ECAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{698B2B13-13D5-4FA0-B3D2-DB4B51F8ECAE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {33C9024E-D44A-4442-8193-D1F2400B9F22}
+	EndGlobalSection
+EndGlobal
