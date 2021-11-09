@@ -107,6 +107,10 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
         }
         {
+          name: 'WEBSITE_CONTENTSHARE'
+          value: 'azurefunctions'
+        }
+        {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
           value: applicationInsights.properties.InstrumentationKey
         }
@@ -126,3 +130,5 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
     }
   }
 }
+
+output functionAppName string = functionApp.name
