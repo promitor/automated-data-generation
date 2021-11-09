@@ -1,12 +1,15 @@
 name: Deploy to Azure
+
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-    - 'deploy/**'
-    - '.github/workflows/deploy-to-azure.yml'
+  workflow_run:
+    workflows: ["Package Azure Function"]
+    branches: [main]
+    types:
+      - completed
+
+env:
+  ARTIFACT_PATH: ${{ github.workspace }}/function-artifact
 
 jobs:
   deploy_to_prd:
@@ -17,6 +20,19 @@ jobs:
         name: Promitor Data Generation (PRD)
       runs-on: ubuntu-latest
       steps:
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Required, workflow file name or ID
+          workflow: package-azure-function.yml
+          # Optional, the status or conclusion of a completed workflow to search for
+          workflow_conclusion: success
+          # Optional, uploaded artifact name
+          name: function-app-package
+          # Optional, directory where to extract artifact. Defaults to the artifact name (see `name` input)
+          path: ${{ env.ARTIFACT_PATH }}
+
         # Checkout code
       - uses: actions/checkout@main
         name: Checkout code
@@ -28,11 +44,18 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
         # Deploy Bicep file
-      - name: Deploy to Azure
+      - name: Deploy Bicep Declaration on Azure
         uses: azure/arm-deploy@v1
+        id: deploy
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
           template: ./deploy/infrastructure.bicep
           deploymentName: infrastructure-run-${{ github.run_number }}
           failOnStdErr: true
+
+      - name: 'Deploy to Azure Functions'
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ steps.deploy.outputs.functionAppName }}
+          package: '${{ env.ARTIFACT_PATH }}'
