@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@main
 
       # Lint Bicep file
-    - name: Bicep Build
+    - name: Build Bicep Declaration
       uses: Azure/bicep-build-action@v1.0.0
       with:
         bicepFilePath: ./deploy/infrastructure.bicep
