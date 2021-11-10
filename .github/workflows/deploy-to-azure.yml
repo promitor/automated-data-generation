@@ -2,66 +2,81 @@ name: Deploy to Azure
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Package Azure Function"]
-    branches: [main]
-    types:
-      - completed
   push:
     branches:
       - main
     paths:
-    - 'deploy/**'
     - '.github/workflows/deploy-to-azure.yml'
+    - 'deploy/**'
+    - 'src/**'
 
 env:
-  ARTIFACT_PATH: ${{ github.workspace }}/function-artifact
+  OUTPUT_PATH: ${{ github.workspace }}/.output
+  ARTIFACT_NAME: function-app-package
+  DOTNET_VERSION: '3.1.x'
 
 jobs:
+  package:
+    name: Package Artifact
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@master
+
+    - name: Setup .NET v${{ env.DOTNET_VERSION }}
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Create Azure Function Artifact
+      run: dotnet build ./src/Promitor.DataGeneration.CustomMetrics --configuration Release --output ${{ env.OUTPUT_PATH }}
+
+    - name: Publish Azure Function Artifact
+      uses: actions/upload-artifact@v1
+      with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.OUTPUT_PATH }}
+
   deploy_to_prd:
-      name: Deploy to PROD
-      env:
-        AZURE_RESOURCEGROUP_NAME: "promitor-automation-data-generation"
-      environment:
-        name: Promitor Data Generation (PRD)
-      runs-on: ubuntu-latest
-      steps:
-      - name: Download artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Required, workflow file name or ID
-          workflow: package-azure-function.yml
-          # Optional, the status or conclusion of a completed workflow to search for
-          workflow_conclusion: success
-          # Optional, uploaded artifact name
-          name: function-app-package
-          # Optional, directory where to extract artifact. Defaults to the artifact name (see `name` input)
-          path: ${{ env.ARTIFACT_PATH }}
+    name: Deploy to PROD
+    needs: [package]
+    env:
+      AZURE_RESOURCEGROUP_NAME: "promitor-automation-data-generation"
+    environment:
+      name: Promitor Data Generation (PRD)
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+    - uses: actions/checkout@main
+      name: Checkout code
 
-        # Checkout code
-      - uses: actions/checkout@main
-        name: Checkout code
+      # Download Azure Functions artifact
+    - name: Download Artifact
+      uses: actions/download-artifact@v1
+      with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.OUTPUT_PATH }}
 
-          # Login to Azure
-      - uses: azure/login@v1
-        name: Login to Azure
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # Login to Azure
+    - uses: azure/login@v1
+      name: Login to Azure
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-        # Deploy Bicep file
-      - name: Deploy Bicep Declaration on Azure
-        uses: azure/arm-deploy@v1
-        id: deploy
-        with:
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-          resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
-          template: ./deploy/infrastructure.bicep
-          deploymentName: infrastructure-run-${{ github.run_number }}
-          failOnStdErr: true
-
-      - name: 'Deploy to Azure Functions'
-        uses: Azure/functions-action@v1
-        with:
-          app-name: ${{ steps.deploy.outputs.functionAppName }}
-          package: '${{ env.ARTIFACT_PATH }}'
+      # Deploy Bicep file
+    - name: Deploy Bicep Declaration on Azure
+      uses: azure/arm-deploy@v1
+      id: deploy
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
+        template: ./deploy/infrastructure.bicep
+        deploymentName: infrastructure-run-${{ github.run_number }}
+        failOnStdErr: true
+      
+      # Deploy Azure Function
+    - name: 'Deploy to Azure Functions'
+      uses: Azure/functions-action@v1
+      with:
+        app-name: ${{ steps.deploy.outputs.functionAppName }}
+        package: ${{ env.OUTPUT_PATH }}
