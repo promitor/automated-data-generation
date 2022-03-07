@@ -32,7 +32,7 @@ jobs:
       run: dotnet build ./src/Promitor.DataGeneration.CustomMetrics --configuration Release --output ${{ env.OUTPUT_PATH }}
 
     - name: Publish Azure Function Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.OUTPUT_PATH }}
