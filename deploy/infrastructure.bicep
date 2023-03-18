@@ -2,7 +2,7 @@ param location string = resourceGroup().location
 param resourceNamePrefix string = 'promitor-automation-data-generation-${geo}'
 param geo string = 'we'
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'promitordatageneration'
   location: location
   sku: {
