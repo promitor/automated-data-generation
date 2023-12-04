@@ -24,7 +24,7 @@ jobs:
       uses: actions/checkout@master
 
     - name: Setup .NET v${{ env.DOTNET_VERSION }}
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
