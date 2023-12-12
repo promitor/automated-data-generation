@@ -64,7 +64,7 @@ resource classicApplicationInsights 'microsoft.insights/components@2020-02-02' =
   }
 }
 
-resource serverlessAppPlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+resource serverlessAppPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   name: '${resourceNamePrefix}-serverless-app-plan'
   location: location
   sku: {
